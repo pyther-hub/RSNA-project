@@ -33,15 +33,13 @@ if __name__ == "__main__":
     for fold in FOLDS:
         gc_collect()
         ds_train = BreastCancerDataSet(
-            df_train.query("split != @fold"),
+            df_train.query(f"split != fold"),
             TRAIN_IMAGES_PATH,
             get_transforms(aug=Config.AUG),
         )
         ds_eval = BreastCancerDataSet(
-            df_train.query("split == @fold"),
+            df_train.query(f"split != fold"),
             TRAIN_IMAGES_PATH,
             get_transforms(aug=False),
         )
         train_model(ds_train, ds_eval, f"model-f{fold}")
-# https://www.kaggle.com/code/lucario129/train-pytorch-aux-targets-weighted-loss-thres/edit
-# https://www.kaggle.com/competitions/rsna-breast-cancer-detection/discussion/391378

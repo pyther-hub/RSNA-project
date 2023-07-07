@@ -1,18 +1,17 @@
-
 # RSNA Screening Mammography Breast Cancer Detection
 
-## What All is Done 
+## What All is Done
 
 * Model
 
   * Used simple 2 model used and made an Ensemble
-  * tf_efficientnetv2_s
-  * maxvit_tiny_tf_384.in1k
+  * efficientnet_b3
+  * seresnext50_32x4d
 * CV strategy
 
-  * used 5 stratifiedgroupkfold using (Patient id and label )
+  * used 4 stratifiedgroupkfold using (Patient id and label )
   * ROI extraction was performed using rule-based method
-  * The resolution was set to 1024x512 for efficientnet-b3 and b4.
+  * The resolution was set to 512x256 for efficientnet-b3 and b4.
   * The channel number was set to 3 (to use pretrained models)
   * Min-max scaling (-1.0 ~ 1.0)
 * Dealing with Imbalance Data
@@ -36,7 +35,7 @@
 
 ### Model Parameters
 
-1. Dropout rate (0.7), A high grouput rate performed better
+1. Dropout rate (0.8), A high grouput rate performed better
 2. Loss function used was BCEWithLogitsLoss, FocalLoss was not working
 3. optimizer: Adam (lr: 1.0e-4)
 4. scheduler: OneCycleLR (pct_start: 0.1, div_factor: 1.0e+3, max_lr: 1.0e-4)

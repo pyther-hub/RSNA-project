@@ -10,7 +10,7 @@ class BreastCancerModel(torch.nn.Module):
             model_type, pretrained=True, num_classes=0, drop_rate=dropout
         )
 
-        self.backbone_dim = self.model(torch.randn(1, 3, 256, 256)).shape[-1]
+        self.backbone_dim = self.model(torch.randn(1, 3, 512, 256)).shape[-1]
 
         self.nn_cancer = torch.nn.Sequential(
             torch.nn.Linear(self.backbone_dim, 1),
@@ -19,7 +19,6 @@ class BreastCancerModel(torch.nn.Module):
     def forward(self, x):
         x = self.model(x)
         cancer = self.nn_cancer(x).squeeze()
-
         return cancer
 
     def predict(self, x):

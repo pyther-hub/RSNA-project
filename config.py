@@ -9,6 +9,7 @@ class Config:
     AUG = True
     POSITIVE_TARGET_WEIGHT = 20
     BATCH_SIZE = 8
+    ACCUMULATION_STEPS=4
     AUTO_AUG_M = 10
     AUTO_AUG_N = 2
     TTA = False

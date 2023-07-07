@@ -56,9 +56,11 @@ def train_model(ds_train, ds_eval, name, config=Config, do_save_model=True):
         )
 
     scaler = GradScaler()
+    accumulation_steps = config.ACCUMULATION_STEPS  # Number of steps to accumulate gradients
     best_eval_score = 0
     for epoch in tqdm(range(config.EPOCHS), desc="Epoch"):
         model.train()
+        total_loss = 0  # Initialize the total loss for accumulation
         with tqdm(dl_train, desc="Train", mininterval=30) as train_progress:
             for batch_idx, (X, y_cancer) in enumerate(train_progress):
                 optim.zero_grad()
@@ -71,20 +73,25 @@ def train_model(ds_train, ds_eval, name, config=Config, do_save_model=True):
                             DEVICE
                         ),
                     )
-                    loss = cancer_loss
+                    loss = cancer_loss / accumulation_steps  # Scale the loss by accumulation steps
                     if np.isinf(loss.item()) or np.isnan(loss.item()):
                         print(f"Bad loss, skipping the batch {batch_idx}")
                         del loss, cancer_loss, y_cancer_pred
                         gc_collect()
                         continue
 
-                # scaler is needed to prevent "gradient underflow"
                 scaler.scale(loss).backward()
-                scaler.step(optim)
-                if scheduler is not None:
-                    scheduler.step()
 
-                scaler.update()
+                if (batch_idx + 1) % accumulation_steps == 0 or (batch_idx + 1) == len(dl_train):
+                    # Update the gradients every accumulation_steps or at the end of the epoch
+                    scaler.step(optim)
+                    scaler.update()
+                    optim.zero_grad()
+
+                    if scheduler is not None:
+                        scheduler.step()
+
+                total_loss += loss.item()
 
                 lr = (
                     scheduler.get_last_lr()[0] if scheduler else config.ONE_CYCLE_MAX_LR

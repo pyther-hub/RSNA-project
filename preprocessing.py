@@ -28,7 +28,7 @@ def fit_image(fname):
 
 
 def fit_all_images(all_images):
-    with ProcessPoolExecutor(4) as p:
+    with ProcessPoolExecutor(2) as p:
         for i in tqdm(p.map(fit_image, all_images), total=len(all_images)):
             pass
 
